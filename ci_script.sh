@@ -1,10 +1,6 @@
-#!/usr/bin/env bash
+#!/usr/bin/bash
 
 set -e
-
-test_fn(){
-    echo "I'm here"
-}
 
 setup_environment(){
 
@@ -15,15 +11,16 @@ setup_environment(){
 
     case "$BRANCH_NAME" in 
         Main)
-        TEST_DIR="odoo_selenium_tests_Main"
+        TEST_DIR="odoo15_selenium_tests_Main"
         ;;
 
         Work-pc)
-        TEST_DIR="odoo_selenium_tests_Work-pc"
+        TEST_DIR="odoo15_selenium_tests_Work-pc"
         ;;
 
-        Home-pc)
-        TEST_DIR="odoo_selenium_tests_Home-pc"
+        Home-pc/*)
+        TEST_DIR="odoo15_selenium_tests_Home-pc"
+        exit 1
         ;;
     esac
 
@@ -36,21 +33,28 @@ run_tests(){
 
 case "$BRANCH_NAME" in
     Main)
-        TEST_DIR="odoo_selenium_tests_Main"
+        TEST_DIR="odoo15_selenium_tests_Main"
     ;;
 
     Work-pc)
-        TEST_DIR="odoo_selenium_tests_Work-pc"
+        TEST_DIR="odoo15_selenium_tests_Work-pc"
     ;;
+
     Home-pc)
-        TEST_DIR="odoo_selenium_tests_Home-pc"
+        TEST_DIR="odoo15_selenium_tests_Home-pc"
     ;;
 esac
 
-pytest -q --tb=short "/var/lib/jenkins/workspace/$TEST_DIR/odoo_sandbox/authentication/test_login.py::test_valid_login"
+pytest -q --tb=short "/var/lib/jenkins/workspace/$TEST_DIR/odoo_sandbox/authentication/test_login.py::test_invalid_login"
 
 echo "Tests ran successfully!"
 
+}
+
+deploy_changes(){
+    ssh kkiarie@sandbox.erp.quatrixglobal.com /opt/scripts/update_odoo.sh
+
+    
 }
 
 case "$1" in 
@@ -63,11 +67,9 @@ case "$1" in
     *)
 
         echo "Usage: $0 {stage_setup_environment | stage_run_tests}"
-        
+        exit 1
 
         ;;
 esac
-
-
 
 
